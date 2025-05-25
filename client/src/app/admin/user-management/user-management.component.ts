@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { AdminService } from '../../_services/admin.service';
 import { User } from '../../_models/user';
 import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
-import { RolesModalComponent } from '../../modals/roles-modal/roles-modal.component'; 
+import { RolesModalComponent } from '../../modals/roles-modal/roles-modal.component';
 
 @Component({
   selector: 'app-user-management',
@@ -21,15 +21,29 @@ export class UserManagementComponent implements OnInit {
     this.getUsersWithRoles();
   }
 
-  openRolesModal() {
+  openRolesModal(user: User) {
     const initialState: ModalOptions = {
       class: "modal-lg",
       initialState: {
         title: "User roles",
-        list: ["Admin", "Member", "Moderator"]
+        username: user.username,
+        selectedRoles: [...user.roles],
+        availableRoles: ["Admin", "Member", "Moderator"],
+        users: this.users,
+        rolesUpdated: false
       }
     };
     this.bsModalRef = this.modalService.show(RolesModalComponent, initialState);
+    this.bsModalRef.onHide?.subscribe({
+      next: () => {
+        if (this.bsModalRef.content && this.bsModalRef.content.rolesUpdated) {
+          const selectedRoles = this.bsModalRef.content.selectedRoles;
+          this.adminService.updateUserRoles(user.username, selectedRoles).subscribe({
+            next: roles => user.roles = roles
+          });
+        }
+      }
+    });
   }
 
   getUsersWithRoles() {

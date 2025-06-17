@@ -57,8 +57,6 @@ public class UserRepository(DataContext context, IMapper mapper) : IUserReposito
         .CreateAsync(query.ProjectTo<MemberResponse>(mapper.ConfigurationProvider), userParams.PageNumber, userParams.PageSize);
     }
     public async Task<object?> GetUserByIdAsync(int v) => throw new NotImplementedException();
-    public async Task<bool> SaveAllAsync()
-        => await context.SaveChangesAsync() > 0;
 
     public void Update(AppUser user)
         => context.Entry(user).State = EntityState.Modified;
